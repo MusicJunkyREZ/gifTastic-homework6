@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Stop: It's Giphy time</title>
+</head>
+
+<body>
+    <div class="container">
+        <form id="gif-form">
+            <label for="gif-input">Search a instrument!</label>
+            <input type="text" id="instrument-input">
+            <br><br>
+            <input id="add-gif" type="submit" value="Search a instrument!" class="btn-primary">
+        </form>
+        <div id="buttons-view" class="btn-primary"></div>
+        <!--Where the buttons will display on the page-->
+
+        <div id="gifs-view"></div>
+        <!--Where the instrument GIFS will be displayed-->
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript">
+
+        //create initial array
+        var instruments = ["guitar", "drums", "clarinet", "trombone"]
+
+        // function to display all GIF buttons
+        function displayGifButtons() {
+            console.log("Test1")
+            $("#buttons-view").empty(); //erasing div to prevent duplicates
+            for (var i = 0; i < instruments.length; i++) {
+                console.log("Test2")
+                var gifButton = $("<button>");
+                gifButton.addClass("instrument");
+                gifButton.addClass("btn-primary");
+                gifButton.attr("data-name", instruments[i]);
+                gifButton.text(instruments[i]);
+                $("#buttons-view").append(gifButton);
+            }
+        }
+
+
+        // function to add new button
+        // function newButton() 
+        $("#gif-form").on("submit", function (event) {
+            event.preventDefault();
+            var instrument = $("#instrument-input").val().trim();
+            if (instrument === "") {
+                return false; //so user can't submit empty value
+            } else {
+                instruments.push(instrument);
+                console.log(instruments);
+                displayGifButtons();
+                console.log("Test4");
+                console.log(instrument);
+                // return true;
+            };
+            console.log("Test5")
+        });
+
+
+        //function display GIFS
+        //get rid of displayGifs function, instead use an on click event for id of each button to trigger ajax call
+        //create on click with "instrument-input".on(click)
+
+        //For all buttons used to search
+        //OR #add-gif
+        //OR #buttons-view
+        //OR .container
+        //.btn-primary will make sure the search is only done when any button is clicked or term is searched
+        $(".btn-primary").on("click", function (event) {
+            // $("#gifs-view").empty(); //clear for new GIFS
+            var instrument = $(this).attr("data-name");
+            var queryURL = "https://api.giphy.com/v1/gifs/search?api_key=NvkwIua8q0oNy0swnCbL9Qb05mPiZKSd&q=" + instrument + "&limit=25&offset=0&rating=G&lang=en";
+            console.log("Test3");
+            console.log(instrument);
+            console.log(this);
+            //I can't get the instrument variable to target the correct attribute, without this the GIFS won't work
+
+            $.ajax({
+                url: queryURL,
+                method: "GET"
+            }).then(function (response) {
+                console.log(response);  //test we get a response
+                $("#gifs-view").empty(); //erasing div to prevent adding on from last click
+                var results = response.data;
+                for (i = 0; i < results.length; i++) {
+                    //create new div to save responses from API
+                    var gifDiv = $("<div class = 'gifDiv'>");
+                    //rating
+                    var rating = response.rating;
+                    var gifRating = $("<p>").text("Rating: " + results[i].rating.toUpperCase());
+                    //display rating
+                    gifDiv.append(gifRating);
+                    //title
+                    var title = response.title;
+                    var gifTitle = $("<p>").text("Title: " + results[i].title.toUpperCase())
+                    //display title
+                    gifDiv.append(gifTitle)
+                    //pulling gif
+                    var gifImage = $("<img>");
+                    gifImage.attr("src", results[i].images.fixed_height_small_still.url); //still image stored as src
+                    gifImage.attr("data-still", results[i].images.fixed_height_small_still.url); //still image
+                    gifImage.attr("data-animate", results[i].images.fixed_height_small_still.url); //animated image
+                    gifImage.attr("data-state", "still") //setting image state
+                    gifImage.addClass("image");
+                    gifDiv.append(gifImage);
+                    //url
+                    $("#gifs-view").prepend(gifDiv);
+                    // var gifURL = results[i]
+                }
+            });
+
+        });
+
+        // Calling Functions and Methods
+        displayGifButtons();
+        // newButton();
+
+        // These will be for starting and stopping the GIFs
+        // Event Listeners
+        $(document).on("click", ".instrument", displayGifs)
+        $(document).on("click", ".image", function () {
+            var state = $(this).attr("data-state");
+            if (state === "still") {
+                $(this).attr("src", $(this).data("animate"));
+                $(this).attr("data-state", "animate")
+            } else {
+                $(this).attr("src", $(this).data("still"));
+                $(this).attr("data-state", "still");
+            }
+        });
+
+        //API Key: NvkwIua8q0oNy0swnCbL9Qb05mPiZKSd  -->
+
+        // https://api.giphy.com/v1/gifs/search?api_key=NvkwIua8q0oNy0swnCbL9Qb05mPiZKSd&q=&limit=25&offset=0&rating=G&lang=en  -->
+    </script>
+
+</body>
+
+</html>
