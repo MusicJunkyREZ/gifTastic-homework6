@@ -29,7 +29,7 @@
 
         // function to display all GIF buttons
         function displayGifButtons() {
-            console.log("Test1")
+            // console.log("Test1")
             $("#buttons-view").empty(); //erasing div to prevent duplicates
             for (var i = 0; i < instruments.length; i++) {
                 console.log("Test2")
@@ -54,11 +54,11 @@
                 instruments.push(instrument);
                 console.log(instruments);
                 displayGifButtons();
-                console.log("Test4");
-                console.log(instrument);
+                // console.log("Test4");
+                // console.log(instrument);
                 // return true;
             };
-            console.log("Test5")
+            // console.log("Test5")
         });
 
 
@@ -71,13 +71,14 @@
         //OR #buttons-view
         //OR .container
         //.btn-primary will make sure the search is only done when any button is clicked or term is searched
-        $(".btn-primary").on("click", function (event) {
+        $("#buttons-view").on("click", ".instrument", function (event) {
             // $("#gifs-view").empty(); //clear for new GIFS
-            var instrument = $(this).attr("data-name");
+            instrument = $(this).attr("data-name");
+            console.log(this)
+            console.log($(this).data("data-name"))
             var queryURL = "https://api.giphy.com/v1/gifs/search?api_key=NvkwIua8q0oNy0swnCbL9Qb05mPiZKSd&q=" + instrument + "&limit=25&offset=0&rating=G&lang=en";
             console.log("Test3");
             console.log(instrument);
-            console.log(this);
             //I can't get the instrument variable to target the correct attribute, without this the GIFS won't work
 
             $.ajax({
@@ -122,14 +123,14 @@
 
         // These will be for starting and stopping the GIFs
         // Event Listeners
-        $(document).on("click", ".instrument", displayGifs)
-        $(document).on("click", ".image", function () {
+        // $(document).on("click", ".instrument", displayGifs)
+        $(".instrument").on("click", function () {
             var state = $(this).attr("data-state");
             if (state === "still") {
-                $(this).attr("src", $(this).data("animate"));
+                $(this).attr("src", $(this).attr("data-animate"));
                 $(this).attr("data-state", "animate")
             } else {
-                $(this).attr("src", $(this).data("still"));
+                $(this).attr("src", $(this).attr("data-still"));
                 $(this).attr("data-state", "still");
             }
         });
