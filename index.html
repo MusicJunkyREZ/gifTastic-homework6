@@ -117,6 +117,47 @@
 
         });
 
+        $("#add-gif").on("click", function(event){
+            var instrument = $("#instrument-input").val().trim();
+            var queryURL = "https://api.giphy.com/v1/gifs/search?api_key=NvkwIua8q0oNy0swnCbL9Qb05mPiZKSd&q=" + instrument + "&limit=25&offset=0&rating=G&lang=en";
+            $.ajax({
+                url: queryURL,
+                method: "GET"
+            }).then(function (response) {
+                console.log(response);  //test we get a response
+                $("#gifs-view").empty(); //erasing div to prevent adding on from last click
+                var results = response.data;
+                for (i = 0; i < results.length; i++) {
+                    //create new div to save responses from API
+                    var gifDiv = $("<div class = 'gifDiv'>");
+                    //rating
+                    var rating = response.rating;
+                    var gifRating = $("<p>").text("Rating: " + results[i].rating.toUpperCase());
+                    //display rating
+                    gifDiv.append(gifRating);
+                    //title
+                    var title = response.title;
+                    var gifTitle = $("<p>").text("Title: " + results[i].title.toUpperCase())
+                    //display title
+                    gifDiv.append(gifTitle)
+                    //pulling gif
+                    var gifImage = $("<img>");
+                    gifImage.attr("src", results[i].images.fixed_height_small_still.url); //still image stored as src
+                    gifImage.attr("data-still", results[i].images.fixed_height_small_still.url); //still image
+                    gifImage.attr("data-animate", results[i].images.fixed_height_small_still.url); //animated image
+                    gifImage.attr("data-state", "still") //setting image state
+                    gifImage.addClass("image");
+                    gifDiv.append(gifImage);
+                    //url
+                    $("#gifs-view").prepend(gifDiv);
+                    // var gifURL = results[i]
+                }
+            });
+
+        });
+    
+            
+
         // Calling Functions and Methods
         displayGifButtons();
         // newButton();
@@ -124,7 +165,8 @@
         // These will be for starting and stopping the GIFs
         // Event Listeners
         // $(document).on("click", ".instrument", displayGifs)
-        $(".instrument").on("click", function () {
+        $("#gifs-view").on("click", function () {
+            // console.log("clicked a gif")
             var state = $(this).attr("data-state");
             if (state === "still") {
                 $(this).attr("src", $(this).attr("data-animate"));
